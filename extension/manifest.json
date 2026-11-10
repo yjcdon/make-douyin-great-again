@@ -1,0 +1,27 @@
+{
+  "manifest_version": 3,
+  "name": "make-douyin-great-again",
+  "version": "0.1.1",
+  "description": "在抖音网页版按 V 分享时，只复制作品标题和短链接。",
+  "minimum_chrome_version": "111",
+  "icons": {
+    "16": "icons/mdga-16.png",
+    "32": "icons/mdga-32.png",
+    "48": "icons/mdga-48.png",
+    "128": "icons/mdga-128.png"
+  },
+  "action": {
+    "default_icon": {
+      "16": "icons/mdga-16.png",
+      "32": "icons/mdga-32.png"
+    }
+  },
+  "content_scripts": [
+    {
+      "matches": ["https://www.douyin.com/*"],
+      "js": ["share-copy.js"],
+      "run_at": "document_start",
+      "world": "MAIN"
+    }
+  ]
+}
