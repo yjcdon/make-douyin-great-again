@@ -1,8 +1,8 @@
 {
   "manifest_version": 3,
   "name": "make-douyin-great-again",
-  "version": "0.1.1",
-  "description": "按 V 复制作品标题和短链接，关闭精选页悬浮浏览，快捷提交不感兴趣。",
+  "version": "0.2.0",
+  "description": "按 V 复制作品标题和短链接，隐藏精选页大播放器，关闭悬浮浏览，快捷提交不感兴趣。",
   "minimum_chrome_version": "111",
   "permissions": ["storage"],
   "icons": {
@@ -27,7 +27,8 @@
     },
     {
       "matches": ["https://www.douyin.com/*"],
-      "js": ["jingxuan-hover-preview.js"],
+      "js": ["jingxuan-hover-preview.js", "jingxuan-cover-grid.js"],
+      "css": ["jingxuan-cover-grid.css"],
       "run_at": "document_start"
     },
     {

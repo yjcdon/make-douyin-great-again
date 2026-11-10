@@ -1,0 +1,26 @@
+.mdga-jingxuan-layout-pending :is(.discover-video-card-item, .videoImage, .xgplayer, video) {
+    visibility: hidden !important;
+}
+
+.mdga-featured-cover-grid {
+    display: grid !important;
+    grid-template-columns: repeat(auto-fill, minmax(min(100%, var(--mdga-cover-min-width)), 1fr)) !important;
+    grid-template-rows: none !important;
+    grid-auto-flow: row !important;
+    gap: 16px !important;
+}
+
+/* 顶部和后续封面可能由不同容器承载，将它们放入同一个网格。 */
+.mdga-featured-cover-grid :not(.discover-video-card-item, .discover-video-card-item *, .mdga-featured-player-hidden):has(.discover-video-card-item) {
+    display: contents !important;
+}
+
+.mdga-featured-cover-grid .discover-video-card-item {
+    grid-area: auto !important;
+    width: auto !important;
+    min-width: 0;
+}
+
+.mdga-featured-player-hidden {
+    display: none !important;
+}
