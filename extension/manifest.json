@@ -2,7 +2,7 @@
   "manifest_version": 3,
   "name": "make-douyin-great-again",
   "version": "0.1.1",
-  "description": "在抖音网页版按 V 分享时，只复制作品标题和短链接。",
+  "description": "按 V 复制作品标题和短链接，在精选页快捷提交不感兴趣。",
   "minimum_chrome_version": "111",
   "icons": {
     "16": "icons/mdga-16.png",
@@ -21,6 +21,12 @@
       "matches": ["https://www.douyin.com/*"],
       "js": ["share-copy.js"],
       "run_at": "document_start",
+      "world": "MAIN"
+    },
+    {
+      "matches": ["https://www.douyin.com/*"],
+      "js": ["jingxuan-feedback.js"],
+      "css": ["jingxuan-feedback.css"],
       "world": "MAIN"
     }
   ]

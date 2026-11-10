@@ -1,0 +1,79 @@
+.mdga-feedback-button {
+    position: absolute;
+    z-index: 10;
+    display: grid;
+    width: 36px;
+    height: 36px;
+    box-sizing: border-box;
+    place-items: center;
+    padding: 0;
+    border: 1px solid rgb(255 255 255 / 24%);
+    border-radius: 8px;
+    background: rgb(20 20 20 / 90%);
+    color: #fff;
+    opacity: 0;
+    pointer-events: none;
+    cursor: pointer;
+}
+
+.discover-video-card-item:has(.mdga-feedback-cover:hover) > .mdga-feedback-button,
+.mdga-feedback-button:hover,
+.mdga-feedback-button:focus-visible {
+    opacity: 1;
+    pointer-events: auto;
+}
+
+.mdga-feedback-button[hidden],
+.mdga-feedback-mask[hidden] {
+    display: none;
+}
+
+.mdga-feedback-button:focus-visible {
+    outline: 2px solid currentColor;
+    outline-offset: 2px;
+}
+
+.mdga-feedback-button[aria-disabled="true"] {
+    cursor: wait;
+    color: #bcbcbc;
+}
+
+.mdga-feedback-failed:hover::after,
+.mdga-feedback-failed:focus-visible::after {
+    position: absolute;
+    left: calc(100% + 6px);
+    padding: 6px 8px;
+    border-radius: 6px;
+    background: #222;
+    font-size: 12px;
+    white-space: nowrap;
+    pointer-events: none;
+    content: '提交失败，点击重试';
+}
+
+.mdga-feedback-button svg {
+    pointer-events: none;
+}
+
+.mdga-feedback-mask {
+    position: absolute;
+    z-index: 10;
+    display: grid;
+    box-sizing: border-box;
+    overflow: hidden;
+    border: 1px solid #323030;
+    border-radius: 12px;
+    background: #211f1f;
+    color: #f1efef;
+    text-align: center;
+    cursor: default;
+}
+
+.mdga-feedback-message {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    font-size: 16px;
+}
