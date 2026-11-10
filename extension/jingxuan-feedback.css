@@ -23,8 +23,7 @@
     pointer-events: auto;
 }
 
-.mdga-feedback-button[hidden],
-.mdga-feedback-mask[hidden] {
+.mdga-feedback-button[hidden] {
     display: none;
 }
 
@@ -34,7 +33,6 @@
 }
 
 .mdga-feedback-button[aria-disabled="true"] {
-    cursor: wait;
     color: #bcbcbc;
 }
 
@@ -48,32 +46,20 @@
     font-size: 12px;
     white-space: nowrap;
     pointer-events: none;
-    content: '提交失败，点击重试';
+    content: attr(aria-label);
 }
 
 .mdga-feedback-button svg {
     pointer-events: none;
 }
 
-.mdga-feedback-mask {
-    position: absolute;
-    z-index: 10;
-    display: grid;
-    box-sizing: border-box;
-    overflow: hidden;
-    border: 1px solid #323030;
-    border-radius: 12px;
-    background: #211f1f;
-    color: #f1efef;
-    text-align: center;
-    cursor: default;
+/* 快捷按钮借用原生菜单，保持菜单的布局和点击逻辑。 */
+:root:has(.mdga-feedback-opening ._6D1Cp2t.YK5tIG4e) .RJudxp8S {
+    visibility: hidden;
 }
 
-.mdga-feedback-message {
+/* 关闭悬浮预览时，三点仍可通过卡片的 CSS 悬浮状态显示。 */
+.mdga-disable-hover-preview .discover-video-card-item:hover ._6D1Cp2t.tnMCp_nY,
+.mdga-disable-hover-preview .discover-video-card-item ._6D1Cp2t.YK5tIG4e {
     display: flex;
-    flex-direction: column;
-    align-items: center;
-    justify-content: center;
-    gap: 6px;
-    font-size: 16px;
 }

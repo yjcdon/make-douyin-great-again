@@ -3,6 +3,7 @@
 
     const preference = 'disableHoverPreview';
     const cardSelector = '.discover-video-card-item';
+    const moreSelector = '._6D1Cp2t';
     let enabled = true;
     let preferenceChanged = false;
 
@@ -13,10 +14,13 @@
     function suppressHover(event) {
         if (!enabled || !onJingxuanList()) return;
         // 移出事件的目标节点也能让 React 为下一张卡片触发进入事件。
-        const destination = event.type.endsWith('out') ? event.relatedTarget : event.target;
-        if (destination instanceof Element && destination.closest(cardSelector)) {
-            event.stopPropagation();
-        }
+        const leaving = event.type.endsWith('out');
+        const destination = leaving ? event.relatedTarget : event.target;
+        if (!(destination instanceof Element)) return;
+        const card = destination.closest(cardSelector);
+        if (!card || destination.closest(moreSelector)) return;
+        if (leaving && event.target instanceof Element && event.target.closest(moreSelector)?.closest(cardSelector) === card) return;
+        event.stopPropagation();
     }
 
     function stopPreview(event) {
@@ -31,10 +35,16 @@
     }
     window.addEventListener('play', stopPreview, true);
 
+    function updatePreviewStyle() {
+        document.documentElement?.classList.toggle('mdga-disable-hover-preview', enabled);
+    }
+
+    document.addEventListener('DOMContentLoaded', updatePreviewStyle, { once: true });
     chrome.storage.local.onChanged.addListener((changes) => {
         if (!changes[preference]) return;
         preferenceChanged = true;
         enabled = changes[preference].newValue !== false;
+        updatePreviewStyle();
         if (enabled && onJingxuanList()) {
             for (const video of document.querySelectorAll(`${cardSelector} video`)) {
                 if (video.paused && !video.matches(`${cardSelector}:hover video`)) continue;
@@ -47,5 +57,6 @@
     });
     chrome.storage.local.get({ [preference]: true }).then((settings) => {
         if (!preferenceChanged) enabled = settings[preference] !== false;
+        updatePreviewStyle();
     }).catch((error) => console.warn('读取悬浮浏览设置失败', error));
 })();
