@@ -10,10 +10,18 @@
     let prompt = defaultDoubaoPrompt;
     let frame;
 
+    function videoIdFromPage(params) {
+        return /^\/video\/(\d+)\/?$/.exec(location.pathname)?.[1] ?? params.get('modal_id');
+    }
+
+    function isRecommendation(params) {
+        return location.pathname === '/' && params.get('recommend') === '1';
+    }
+
     function videoUrl(control) {
         const params = new URLSearchParams(location.search);
-        let id = /^\/video\/(\d+)\/?$/.exec(location.pathname)?.[1] ?? params.get('modal_id');
-        if (!id && location.pathname === '/' && params.get('recommend') === '1') {
+        let id = videoIdFromPage(params);
+        if (!id && isRecommendation(params)) {
             // 切换标签页时播放器的活动标记可能变化，作品 ID 仍属于这个播放器。
             id = control.closest('[data-e2e-vid]')?.dataset.e2eVid;
         }
@@ -44,7 +52,7 @@
         frame = undefined;
         if (!hasExtensionContext()) return;
         const staleButtons = new Set(document.querySelectorAll(buttonSelector));
-        const controls = enabled ? document.querySelectorAll(aiSelector) : [];
+        const controls = shouldWatchPage() ? document.querySelectorAll(aiSelector) : [];
         for (const ai of controls) {
             if (!videoUrl(ai)) continue;
             const aiControl = ai.parentElement;
@@ -81,7 +89,7 @@
     function hasExtensionContext() {
         if (chrome.runtime?.id) return true;
         observer.disconnect();
-        window.navigation?.removeEventListener('navigatesuccess', scheduleRefresh);
+        window.navigation?.removeEventListener('navigatesuccess', refreshForPage);
         document.removeEventListener('visibilitychange', refreshWhenVisible);
         for (const button of document.querySelectorAll(buttonSelector)) {
             if (buttons.get(button.nextElementSibling) === button) button.remove();
@@ -90,16 +98,27 @@
     }
 
     function refreshWhenVisible() {
-        if (!document.hidden && enabled) scheduleRefresh();
+        if (!document.hidden && enabled) refreshForPage();
     }
 
-    function applyPreference(value) {
-        enabled = value !== false;
-        if (enabled) observer.observe(document.body, {
+    function shouldWatchPage() {
+        if (!enabled) return false;
+        const params = new URLSearchParams(location.search);
+        return /^\d+$/.test(videoIdFromPage(params) ?? '') || isRecommendation(params);
+    }
+
+    function refreshForPage() {
+        if (!hasExtensionContext()) return;
+        if (shouldWatchPage()) observer.observe(document.body, {
             childList: true, subtree: true, attributes: true, attributeFilter: ['data-e2e', 'data-e2e-vid'],
         });
         else observer.disconnect();
         scheduleRefresh();
+    }
+
+    function applyPreference(value) {
+        enabled = value !== false;
+        refreshForPage();
     }
 
     let preferenceChanged = false;
@@ -117,6 +136,6 @@
         if (!promptChanged) prompt = settings.doubaoPrompt;
         if (!preferenceChanged) applyPreference(settings[preference]);
     }).catch((error) => console.warn('读取豆包按钮设置失败', error));
-    window.navigation?.addEventListener('navigatesuccess', scheduleRefresh);
+    window.navigation?.addEventListener('navigatesuccess', refreshForPage);
     document.addEventListener('visibilitychange', refreshWhenVisible);
 })();
