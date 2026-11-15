@@ -14,7 +14,8 @@
         const params = new URLSearchParams(location.search);
         let id = /^\/video\/(\d+)\/?$/.exec(location.pathname)?.[1] ?? params.get('modal_id');
         if (!id && location.pathname === '/' && params.get('recommend') === '1') {
-            id = control.closest('[data-e2e="feed-active-video"]')?.dataset.e2eVid;
+            // 切换标签页时播放器的活动标记可能变化，作品 ID 仍属于这个播放器。
+            id = control.closest('[data-e2e-vid]')?.dataset.e2eVid;
         }
         return /^\d+$/.test(id ?? '') ? `https://www.douyin.com/video/${id}` : null;
     }
@@ -81,10 +82,15 @@
         if (chrome.runtime?.id) return true;
         observer.disconnect();
         window.navigation?.removeEventListener('navigatesuccess', scheduleRefresh);
+        document.removeEventListener('visibilitychange', refreshWhenVisible);
         for (const button of document.querySelectorAll(buttonSelector)) {
             if (buttons.get(button.nextElementSibling) === button) button.remove();
         }
         return false;
+    }
+
+    function refreshWhenVisible() {
+        if (!document.hidden && enabled) scheduleRefresh();
     }
 
     function applyPreference(value) {
@@ -112,4 +118,5 @@
         if (!preferenceChanged) applyPreference(settings[preference]);
     }).catch((error) => console.warn('读取豆包按钮设置失败', error));
     window.navigation?.addEventListener('navigatesuccess', scheduleRefresh);
+    document.addEventListener('visibilitychange', refreshWhenVisible);
 })();
