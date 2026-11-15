@@ -1,0 +1,47 @@
+:has(> .mdga-doubao-position-rail) {
+    position: relative;
+}
+
+.mdga-doubao-button {
+    position: absolute;
+    inset-inline-start: 50%;
+    bottom: calc(100% + 12px);
+    transform: translateX(-50%);
+    display: grid;
+    width: 40px;
+    height: 40px;
+    box-sizing: border-box;
+    place-items: center;
+    padding: 0;
+    border: 0;
+    background: transparent;
+    cursor: pointer;
+}
+
+.mdga-doubao-button img {
+    width: 32px;
+    aspect-ratio: 1;
+}
+
+.mdga-doubao-button:hover img {
+    filter: brightness(1.12);
+}
+
+.mdga-doubao-button::after {
+    position: absolute;
+    inset-inline-end: calc(100% + 8px);
+    top: 50%;
+    transform: translateY(-50%);
+    padding: 8px 12px;
+    border-radius: 8px;
+    background: #242430;
+    color: #fff;
+    font: 14px/20px system-ui, sans-serif;
+    white-space: nowrap;
+    pointer-events: none;
+}
+
+.mdga-doubao-button:hover::after,
+.mdga-doubao-button:focus-visible::after {
+    content: attr(aria-label);
+}

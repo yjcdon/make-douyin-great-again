@@ -1,10 +1,17 @@
 {
   "manifest_version": 3,
   "name": "Make Douyin Great Again",
-  "version": "0.2.1",
+  "version": "0.3.0",
   "description": "按 V 复制作品标题和短链接，隐藏精选页大播放器，关闭悬浮浏览，快捷提交不感兴趣。",
   "minimum_chrome_version": "111",
   "permissions": ["storage"],
+  "background": { "service_worker": "doubao-handoff.js" },
+  "web_accessible_resources": [
+    {
+      "resources": ["icons/doubao-64.png"],
+      "matches": ["https://www.douyin.com/*"]
+    }
+  ],
   "icons": {
     "16": "icons/mdga-16.png",
     "32": "icons/mdga-32.png",
@@ -20,6 +27,10 @@
   },
   "content_scripts": [
     {
+      "matches": ["https://www.doubao.com/chat*"],
+      "js": ["doubao-chat.js"]
+    },
+    {
       "matches": ["https://www.douyin.com/*"],
       "js": ["share-copy.js"],
       "run_at": "document_start",
@@ -30,6 +41,11 @@
       "js": ["jingxuan-hover-preview.js", "jingxuan-cover-grid.js"],
       "css": ["jingxuan-cover-grid.css"],
       "run_at": "document_start"
+    },
+    {
+      "matches": ["https://www.douyin.com/*"],
+      "js": ["doubao-settings.js", "video-doubao.js"],
+      "css": ["video-doubao.css"]
     },
     {
       "matches": ["https://www.douyin.com/*"],

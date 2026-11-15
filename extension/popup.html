@@ -8,15 +8,28 @@
         body { min-width: 200px; margin: 0; padding: 12px; font: 14px system-ui, sans-serif; }
         label { display: flex; align-items: center; justify-content: space-between; gap: 16px; min-height: 32px; }
         input { width: 16px; height: 16px; margin: 0; }
+        form { display: grid; gap: 6px; margin-top: 10px; }
+        textarea { font: inherit; resize: vertical; }
+        form button { justify-self: end; }
         p { margin: 8px 0 0; font-size: 12px; }
     </style>
+    <script src="doubao-settings.js" defer></script>
     <script src="popup.js" defer></script>
 </head>
 <body>
     <label>
         关闭悬浮浏览
-        <input id="disable-hover-preview" type="checkbox" role="switch" checked disabled>
+        <input data-preference="disableHoverPreview" type="checkbox" role="switch" checked disabled>
     </label>
+    <label>
+        显示豆包提取文案按钮
+        <input data-preference="showDoubao" type="checkbox" role="switch" checked disabled>
+    </label>
+    <form id="doubao-prompt-form">
+        <label for="doubao-prompt">发送给豆包的提示词</label>
+        <textarea id="doubao-prompt" rows="3" required disabled></textarea>
+        <button type="submit" disabled>保存提示词</button>
+    </form>
     <p id="status" role="status" hidden></p>
 </body>
 </html>
