@@ -25,9 +25,13 @@
         显示豆包提取文案按钮
         <input data-preference="showDoubao" type="checkbox" role="switch" checked disabled>
     </label>
+    <label>
+        显示下载视频按钮
+        <input data-preference="showVideoDownload" type="checkbox" role="switch" checked disabled>
+    </label>
     <form id="doubao-prompt-form">
         <label for="doubao-prompt">发送给豆包的提示词</label>
-        <textarea id="doubao-prompt" rows="3" required disabled></textarea>
+        <textarea id="doubao-prompt" rows="6" required disabled></textarea>
         <button type="submit" disabled>保存提示词</button>
     </form>
     <p id="status" role="status" hidden></p>

@@ -2,10 +2,12 @@
     'use strict';
 
     const preference = 'showDoubao';
+    const downloadPreference = 'showVideoDownload';
     const infoSelector = '[data-e2e="video-info"]';
     const iconUrl = chrome.runtime.getURL('icons/doubao-64.png');
     const toolbars = new Map();
     let enabled = false;
+    let downloadEnabled = true;
     let prompt = defaultDoubaoPrompt;
     let frame;
 
@@ -54,7 +56,7 @@
 
     /** 把完整播放地址交给 Chrome，保持当前视频的播放状态。 */
     async function downloadVideo(event, info, status) {
-        if (!event.isTrusted || !hasExtensionContext()) return;
+        if (!event.isTrusted || !downloadEnabled || !hasExtensionContext()) return;
         event.stopPropagation();
         const id = videoId(info);
         if (!id) return;
@@ -94,7 +96,8 @@
     function refresh() {
         frame = undefined;
         if (!hasExtensionContext()) return;
-        const infos = shouldWatchPage() ? [...document.querySelectorAll(infoSelector)].filter(videoId) : [];
+        const infos = (enabled || downloadEnabled) && shouldWatchPage()
+            ? [...document.querySelectorAll(infoSelector)].filter(videoId) : [];
         for (const [info, toolbar] of toolbars) {
             if (infos.includes(info) && toolbar.isConnected) continue;
             toolbar.remove();
@@ -104,6 +107,8 @@
             const existing = toolbars.get(info);
             if (existing) {
                 existing.firstElementChild.hidden = !enabled;
+                existing.children[1].hidden = !downloadEnabled;
+                if (!downloadEnabled) existing.lastElementChild.textContent = '';
                 continue;
             }
             const box = info.closest('.player-position-box-bottom') ?? info.parentElement;
@@ -117,6 +122,7 @@
             button.append(icon);
             button.addEventListener('click', (event) => openDoubao(event, info));
             const download = actionButton('下载视频');
+            download.hidden = !downloadEnabled;
             download.innerHTML = '<svg aria-hidden="true" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>';
             const status = document.createElement('span');
             status.className = 'mdga-video-action-status';
@@ -167,20 +173,23 @@
         refreshForPage();
     }
 
-    let preferenceChanged = false;
-    let promptChanged = false;
+    const changedPreferences = new Set();
     chrome.storage.local.onChanged.addListener((changes) => {
+        for (const key of [preference, downloadPreference, 'doubaoPrompt']) {
+            if (changes[key]) changedPreferences.add(key);
+        }
         if (changes.doubaoPrompt) {
-            promptChanged = true;
             prompt = changes.doubaoPrompt.newValue ?? defaultDoubaoPrompt;
         }
-        if (!changes[preference]) return;
-        preferenceChanged = true;
-        applyPreference(changes[preference].newValue);
+        if (changes[downloadPreference]) downloadEnabled = changes[downloadPreference].newValue !== false;
+        if (changes[preference]) applyPreference(changes[preference].newValue);
+        else if (changes[downloadPreference]) refreshForPage();
     });
-    chrome.storage.local.get({ [preference]: true, doubaoPrompt: defaultDoubaoPrompt }).then((settings) => {
-        if (!promptChanged) prompt = settings.doubaoPrompt;
-        if (!preferenceChanged) applyPreference(settings[preference]);
+    chrome.storage.local.get({ [preference]: true, [downloadPreference]: true, doubaoPrompt: defaultDoubaoPrompt }).then((settings) => {
+        if (!changedPreferences.has('doubaoPrompt')) prompt = settings.doubaoPrompt;
+        if (!changedPreferences.has(downloadPreference)) downloadEnabled = settings[downloadPreference] !== false;
+        if (!changedPreferences.has(preference)) enabled = settings[preference] !== false;
+        refreshForPage();
     }).catch((error) => console.warn('读取豆包按钮设置失败', error));
     window.navigation?.addEventListener('navigatesuccess', refreshForPage);
     document.addEventListener('visibilitychange', refreshWhenVisible);
