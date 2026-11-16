@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Make Douyin Great Again",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "description": "按 V 复制作品标题和短链接，隐藏精选页大播放器，关闭悬浮浏览，快捷提交不感兴趣。",
   "minimum_chrome_version": "111",
   "permissions": ["storage", "downloads"],
