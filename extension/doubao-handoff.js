@@ -6,6 +6,22 @@ chrome.runtime.onMessage.addListener((message, sender, respond) => {
     const url = new URL(sender.url);
 
     async function handoff() {
+        if (message.type === 'downloadVideo' && url.origin === 'https://www.douyin.com') {
+            const source = new URL(message.source);
+            const playApi = source.origin === 'https://www.douyin.com' && source.pathname === '/aweme/v1/play/';
+            if (source.protocol !== 'https:' || !(playApi || /(^|\.)douyinvod\.com$/.test(source.hostname))
+                || !/^\d+$/.test(message.id ?? '')) {
+                throw new Error('无法确认视频下载地址');
+            }
+            const safeTitle = typeof message.title === 'string' ? message.title.replace(/[<>:"/\\|?*\x00-\x1f]/g, ' ') : '';
+            const title = [...safeTitle].slice(0, 60).join('').replace(/[.\s]+$/g, '').trim();
+            const filename = title || `douyin-${message.id}`;
+            await chrome.downloads.download({
+                url: source.href,
+                filename: `${filename}.mp4`,
+                conflictAction: 'uniquify',
+            });
+        }
         if (message.type === 'openDoubao' && url.origin === 'https://www.douyin.com'
             && typeof message.text === 'string') {
             // sender.url 可能保留站内跳转前的地址，只用它确认消息来源。
