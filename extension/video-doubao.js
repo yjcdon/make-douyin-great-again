@@ -71,7 +71,7 @@
         }
 
         const description = info.querySelector('[data-e2e="video-desc"]')?.innerText ?? '';
-        const title = description.trim().split(/\n|(?:^|\s)#/, 1)[0].trim();
+        const title = description.trim().split(/\n|#(?=\s*\S)/u, 1)[0].trim();
         button.disabled = true;
         try {
             await requestBackground({ type: 'downloadVideo', id, source, title });
