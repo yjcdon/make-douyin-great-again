@@ -1,12 +1,12 @@
 (() => {
     'use strict';
 
-    const preference = 'showDoubao';
+    const doubaoPreference = 'showDoubao';
     const downloadPreference = 'showVideoDownload';
     const infoSelector = '[data-e2e="video-info"]';
     const iconUrl = chrome.runtime.getURL('icons/doubao-64.png');
     const toolbars = new Map();
-    let enabled = false;
+    let doubaoEnabled = false;
     let downloadEnabled = true;
     let prompt = defaultDoubaoPrompt;
     let frame;
@@ -32,14 +32,14 @@
 
     async function requestBackground(message) {
         const response = await chrome.runtime.sendMessage(message);
-        if (!response || response.error) throw new Error(response?.error ?? '扩展后台未响应');
+        if (response?.ok !== true) throw new Error(response?.error ?? '扩展后台未确认操作');
     }
 
     async function openDoubao(event, info) {
         if (!event.isTrusted) return;
         event.stopPropagation();
         const button = event.currentTarget;
-        if (!enabled || !hasExtensionContext()) return;
+        if (!doubaoEnabled || !hasExtensionContext()) return;
         const id = videoId(info);
         if (!id) return;
 
@@ -93,44 +93,48 @@
         return button;
     }
 
+    function mountToolbar(info) {
+        const element = document.createElement('div');
+        element.className = 'mdga-video-actions';
+
+        const doubaoButton = actionButton('提取文案');
+        const icon = document.createElement('img');
+        icon.alt = '';
+        icon.src = iconUrl;
+        doubaoButton.append(icon);
+        doubaoButton.addEventListener('click', (event) => openDoubao(event, info));
+
+        const downloadButton = actionButton('下载视频');
+        downloadButton.innerHTML = '<svg aria-hidden="true" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>';
+        const downloadStatus = document.createElement('span');
+        downloadStatus.className = 'mdga-video-action-status';
+        downloadStatus.setAttribute('role', 'status');
+        downloadButton.addEventListener('click', (event) => downloadVideo(event, info, downloadStatus));
+
+        element.append(doubaoButton, downloadButton, downloadStatus);
+        const box = info.closest('.player-position-box-bottom') ?? info.parentElement;
+        box.prepend(element);
+
+        const toolbar = { element, doubaoButton, downloadButton, downloadStatus };
+        toolbars.set(info, toolbar);
+        return toolbar;
+    }
+
     function refresh() {
         frame = undefined;
         if (!hasExtensionContext()) return;
-        const infos = (enabled || downloadEnabled) && shouldWatchPage()
+        const infos = (doubaoEnabled || downloadEnabled) && shouldWatchPage()
             ? [...document.querySelectorAll(infoSelector)].filter(videoId) : [];
         for (const [info, toolbar] of toolbars) {
-            if (infos.includes(info) && toolbar.isConnected) continue;
-            toolbar.remove();
+            if (infos.includes(info) && toolbar.element.isConnected) continue;
+            toolbar.element.remove();
             toolbars.delete(info);
         }
         for (const info of infos) {
-            const existing = toolbars.get(info);
-            if (existing) {
-                existing.firstElementChild.hidden = !enabled;
-                existing.children[1].hidden = !downloadEnabled;
-                if (!downloadEnabled) existing.lastElementChild.textContent = '';
-                continue;
-            }
-            const box = info.closest('.player-position-box-bottom') ?? info.parentElement;
-            const toolbar = document.createElement('div');
-            toolbar.className = 'mdga-video-actions';
-            const button = actionButton('提取文案');
-            button.hidden = !enabled;
-            const icon = document.createElement('img');
-            icon.alt = '';
-            icon.src = iconUrl;
-            button.append(icon);
-            button.addEventListener('click', (event) => openDoubao(event, info));
-            const download = actionButton('下载视频');
-            download.hidden = !downloadEnabled;
-            download.innerHTML = '<svg aria-hidden="true" width="23" height="23" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v12m-5-5 5 5 5-5M4 16v4h16v-4"/></svg>';
-            const status = document.createElement('span');
-            status.className = 'mdga-video-action-status';
-            status.setAttribute('role', 'status');
-            download.addEventListener('click', (event) => downloadVideo(event, info, status));
-            toolbar.append(button, download, status);
-            box.prepend(toolbar);
-            toolbars.set(info, toolbar);
+            const { doubaoButton, downloadButton, downloadStatus } = toolbars.get(info) ?? mountToolbar(info);
+            doubaoButton.hidden = !doubaoEnabled;
+            downloadButton.hidden = !downloadEnabled;
+            if (!downloadEnabled) downloadStatus.textContent = '';
         }
     }
 
@@ -145,7 +149,7 @@
         observer.disconnect();
         window.navigation?.removeEventListener('navigatesuccess', refreshForPage);
         document.removeEventListener('visibilitychange', refreshWhenVisible);
-        for (const toolbar of toolbars.values()) toolbar.remove();
+        for (const { element } of toolbars.values()) element.remove();
         toolbars.clear();
         return false;
     }
@@ -168,29 +172,26 @@
         scheduleRefresh();
     }
 
-    function applyPreference(value) {
-        enabled = value !== false;
-        refreshForPage();
-    }
-
     const changedPreferences = new Set();
+    const defaults = { [doubaoPreference]: true, [downloadPreference]: true, doubaoPrompt: defaultDoubaoPrompt };
+
     chrome.storage.local.onChanged.addListener((changes) => {
-        for (const key of [preference, downloadPreference, 'doubaoPrompt']) {
+        for (const key of Object.keys(defaults)) {
             if (changes[key]) changedPreferences.add(key);
         }
         if (changes.doubaoPrompt) {
             prompt = changes.doubaoPrompt.newValue ?? defaultDoubaoPrompt;
         }
+        if (changes[doubaoPreference]) doubaoEnabled = changes[doubaoPreference].newValue !== false;
         if (changes[downloadPreference]) downloadEnabled = changes[downloadPreference].newValue !== false;
-        if (changes[preference]) applyPreference(changes[preference].newValue);
-        else if (changes[downloadPreference]) refreshForPage();
+        if (changes[doubaoPreference] || changes[downloadPreference]) refreshForPage();
     });
-    chrome.storage.local.get({ [preference]: true, [downloadPreference]: true, doubaoPrompt: defaultDoubaoPrompt }).then((settings) => {
+    chrome.storage.local.get(defaults).then((settings) => {
         if (!changedPreferences.has('doubaoPrompt')) prompt = settings.doubaoPrompt;
         if (!changedPreferences.has(downloadPreference)) downloadEnabled = settings[downloadPreference] !== false;
-        if (!changedPreferences.has(preference)) enabled = settings[preference] !== false;
+        if (!changedPreferences.has(doubaoPreference)) doubaoEnabled = settings[doubaoPreference] !== false;
         refreshForPage();
-    }).catch((error) => console.warn('读取豆包按钮设置失败', error));
+    }).catch((error) => console.warn('读取播放器操作设置失败', error));
     window.navigation?.addEventListener('navigatesuccess', refreshForPage);
     document.addEventListener('visibilitychange', refreshWhenVisible);
 })();

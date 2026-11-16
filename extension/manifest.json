@@ -5,7 +5,7 @@
   "description": "按 V 复制作品标题和短链接，隐藏精选页大播放器，关闭悬浮浏览，快捷提交不感兴趣。",
   "minimum_chrome_version": "111",
   "permissions": ["storage", "downloads"],
-  "background": { "service_worker": "doubao-handoff.js" },
+  "background": { "service_worker": "background.js" },
   "web_accessible_resources": [
     {
       "resources": ["icons/doubao-64.png"],
@@ -19,7 +19,7 @@
     "128": "icons/mdga-128.png"
   },
   "action": {
-    "default_popup": "popup.html",
+    "default_popup": "popup/popup.html",
     "default_icon": {
       "16": "icons/mdga-16.png",
       "32": "icons/mdga-32.png"
@@ -32,25 +32,25 @@
     },
     {
       "matches": ["https://www.douyin.com/*"],
-      "js": ["share-copy.js", "video-media-source.js"],
+      "js": ["share-copy.js", "player/video-media-source.js"],
       "run_at": "document_start",
       "world": "MAIN"
     },
     {
       "matches": ["https://www.douyin.com/*"],
-      "js": ["jingxuan-hover-preview.js", "jingxuan-cover-grid.js"],
-      "css": ["jingxuan-cover-grid.css"],
+      "js": ["jingxuan/jingxuan-hover-preview.js", "jingxuan/jingxuan-cover-grid.js"],
+      "css": ["jingxuan/layout.css"],
       "run_at": "document_start"
     },
     {
       "matches": ["https://www.douyin.com/*"],
-      "js": ["doubao-settings.js", "video-doubao.js"],
-      "css": ["video-doubao.css"]
+      "js": ["doubao-settings.js", "player/video-actions.js"],
+      "css": ["player/video-actions.css"]
     },
     {
       "matches": ["https://www.douyin.com/*"],
-      "js": ["jingxuan-feedback.js"],
-      "css": ["jingxuan-feedback.css"],
+      "js": ["jingxuan/jingxuan-feedback.js"],
+      "css": ["jingxuan/jingxuan-feedback.css"],
       "world": "MAIN"
     }
   ]

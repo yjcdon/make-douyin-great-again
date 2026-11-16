@@ -24,3 +24,9 @@
 .mdga-featured-player-hidden {
     display: none !important;
 }
+
+/* 关闭悬浮预览时，卡片仍通过 CSS 显示原生三点菜单。 */
+.mdga-disable-hover-preview .discover-video-card-item:hover ._6D1Cp2t.tnMCp_nY,
+.mdga-disable-hover-preview .discover-video-card-item ._6D1Cp2t.YK5tIG4e {
+    display: flex;
+}
