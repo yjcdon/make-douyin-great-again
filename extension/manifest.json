@@ -1,7 +1,7 @@
 {
   "manifest_version": 3,
   "name": "Make Douyin Great Again",
-  "version": "0.4.3",
+  "version": "0.4.4",
   "description": "增强抖音网页浏览和视频操作，支持下载视频、在豆包填写文案提取草稿、精简分享和调整精选页。",
   "minimum_chrome_version": "111",
   "permissions": ["storage", "downloads"],
