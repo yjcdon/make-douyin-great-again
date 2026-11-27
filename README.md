@@ -1,8 +1,8 @@
 # Make Douyin Great Again
 
-Make Douyin Great Again（MDGA）是抖音网页版浏览器扩展，支持下载 MP4 视频、复制精简分享文案、用豆包提取视频文案，以及调整精选页浏览体验。
+Make Douyin Great Again（MDGA）是抖音网页版浏览器扩展。你可以从播放器下载 MP4、按 `V` 复制标题和短链接、把作品链接和提示词填入豆包草稿，也可以调整精选页的封面和预览。
 
-[下载最新版扩展](https://github.com/yjcdon/make-douyin-great-again/releases/latest) · [版本记录](docs/README.md) · [隐私政策](https://yjcdon.github.io/privacy/make-douyin-great-again/)
+[下载最新版扩展](https://github.com/yjcdon/make-douyin-great-again/releases/latest) · [版本复盘](docs/versions/README.md) · [隐私政策](https://yjcdon.github.io/privacy/make-douyin-great-again/)
 
 ## 功能
 
@@ -15,10 +15,10 @@ Make Douyin Great Again（MDGA）是抖音网页版浏览器扩展，支持下�
 
 ## 安装
 
-适用于 Chrome 111 及以上版本，也可在 Microsoft Edge 中按以下步骤加载。扩展作用于 `www.douyin.com`。
+使用 Chrome 111 或更高版本。Microsoft Edge 也可手动加载扩展。
 
 1. 在最新版下载页的 **Assets** 中下载 `make-douyin-great-again-v*.zip` 并解压。
-2. 在地址栏打开 `chrome://extensions`，Edge 用户打开 `edge://extensions`。
+2. 打开扩展管理页。Chrome 用 `chrome://extensions`，Edge 用 `edge://extensions`。
 3. 开启「开发者模式」，点击「加载已解压的扩展程序」，选择解压后包含 `manifest.json` 的文件夹。
 4. 刷新已打开的抖音页面。
 
