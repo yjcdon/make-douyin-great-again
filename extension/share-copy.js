@@ -62,6 +62,19 @@
         return writeText.apply(this, arguments);
     };
 
+    // 原生复制失败时，抖音会把完整分享文案放进手动复制弹窗。
+    const prompt = window.prompt;
+    window.prompt = function (message, text) {
+        if (performance.now() < shareDeadline) {
+            const formatted = formatShareText(text);
+            if (formatted !== text) {
+                writeText.call(navigator.clipboard, formatted).catch(() => prompt.call(this, message, formatted));
+                return formatted;
+            }
+        }
+        return prompt.apply(this, arguments);
+    };
+
     // 部分复制库先选中临时节点，再调用 execCommand('copy')。
     function formatLegacyCopy(event) {
         const active = document.activeElement;
