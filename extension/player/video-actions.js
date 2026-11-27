@@ -3,7 +3,8 @@
 
     const doubaoPreference = 'showDoubao';
     const downloadPreference = 'showVideoDownload';
-    const infoSelector = '[data-e2e="video-info"]';
+    const detailInfoSelector = '[data-e2e="detail-video-info"]';
+    const infoSelector = `[data-e2e="video-info"], [data-e2e="video-detail"] ${detailInfoSelector}`;
     const iconUrl = chrome.runtime.getURL('icons/doubao-64.png');
     const toolbars = new Map();
     let doubaoEnabled = false;
@@ -43,7 +44,9 @@
         const id = videoId(info);
         if (!id) return;
 
-        const video = button.closest('.basePlayerContainer, .xgplayer')?.querySelector('video');
+        const player = button.closest('.basePlayerContainer, .xgplayer')
+            ?? info.closest('[data-e2e="video-detail"]');
+        const video = player?.querySelector('video');
         if (video && !video.paused) video.pause();
 
         const text = `https://www.douyin.com/video/${id}\n${prompt}`;
@@ -72,7 +75,7 @@
             return;
         }
 
-        const description = info.querySelector('[data-e2e="video-desc"]')?.innerText ?? '';
+        const description = info.querySelector('[data-e2e="video-desc"], h1')?.innerText ?? '';
         const title = description.trim().split(/\n|#(?=\s*\S)/u, 1)[0].trim();
         button.disabled = true;
         try {
@@ -112,7 +115,8 @@
         downloadButton.addEventListener('click', (event) => downloadVideo(event, info, downloadStatus));
 
         element.append(doubaoButton, downloadButton, downloadStatus);
-        const box = info.closest('.player-position-box-bottom') ?? info.parentElement;
+        const box = info.matches(detailInfoSelector) ? info
+            : info.closest('.player-position-box-bottom') ?? info.parentElement;
         box.prepend(element);
 
         const toolbar = { element, doubaoButton, downloadButton, downloadStatus };

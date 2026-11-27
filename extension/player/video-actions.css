@@ -9,7 +9,12 @@
     pointer-events: none !important;
 }
 
-.immersive-player-switch-on-hide-video-info .mdga-video-actions {
+[data-e2e="detail-video-info"] > .mdga-video-actions {
+    margin-inline-start: 0 !important;
+}
+
+.immersive-player-switch-on-hide-video-info .mdga-video-actions,
+[data-e2e="video-detail"]:has(.immersive-player-switch-on-hide-video-info) [data-e2e="detail-video-info"] > .mdga-video-actions {
     display: none;
 }
 
